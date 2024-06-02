@@ -4,7 +4,7 @@
 
 #include "base64.h"
 
-#define URL "http://mercury.picoctf.net:10868/flag"
+#define URL "http://mercury.picoctf.net:<YOUR_PORT>/flag"
 #define SEARCH_STRING "picoCTF{"
 
 unsigned char *decode_cookie(char *data, size_t data_len, size_t *decoded_len)
@@ -87,7 +87,7 @@ int getFlag(const char *auth_cookie)
 
 int main()
 {
-    char cookie[] = "OVRMczZiYlRTcnVPa001czZsYnd3VzdORFJEeTByZzV5ZTUwQndGSWNvQkZYU1JzUmNhLzk4Wm1CQWt4NGFJRHFyWS9Kb1ZWdEpUOWU2dmczb29rT1lXWTJpMnFQRVZldUFBRGJEaUlqWTJnaFUxL1ZiZTVVUkhQZ2JmQzVUbTg=";
+    char cookie[] = "<YOUR_COOKIE>";
     size_t cookie_len = strlen(cookie);
     int total = cookie_len * 128;
 
